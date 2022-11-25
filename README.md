@@ -41,7 +41,7 @@ Reference: https://get.kintone.help/hc/en-us/articles/115001511188-Adding-Plug-i
 2. Make changes to files under /src
 3. Repackage the plug-in by:  
  i. Zipping the manifest.json file, css directory, html directory, image directory and js directory into one zip file.  
- ii. Drag and dropping the file into the [kintone plug-in packer](https://kintone.github.io/plugin-packer/).
+ ii. Packaging the file using [kintone plug-in packer](https://plugin-packer.kintone.dev/).
 
 ## Pull Request Policy
 As this repo exists for educational purposes, we will most likely turn down pull requests that contain updates with new features.  
@@ -49,4 +49,5 @@ Please feel free to host plug-ins with new features on your own repository.
 Bug fixes are happily accepted.
 
 ## More information
-This sample plug-in uses Tippy.js, found here: https://atomiks.github.io/tippyjs/
+This sample plug-in uses Tippy.js, found here https://atomiks.github.io/tippyjs/  
+More detailed information on the plug-in can be found here https://kintone.dev/en/plugins/simple-samples/profile-tooltip-plug-in/
