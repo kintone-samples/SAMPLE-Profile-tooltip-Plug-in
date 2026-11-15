@@ -8,15 +8,15 @@ https://github.com/kintone/SAMPLE-Profile-tooltip-Plug-in/blob/master/LICENSE
   /* global tippy */
 
   // Get plug-in configuration settings
-  var CONFIG = kintone.plugin.app.getConfig(PLUGIN_ID);
+  const CONFIG = kintone.plugin.app.getConfig(PLUGIN_ID);
   if (!CONFIG) {
     return false;
   }
   // Get each setting
-  var CONFIG_NAME = CONFIG.name;
+  const CONFIG_NAME = CONFIG.name;
 
   // Keys and titles of user data to display
-  var INFOLIST = [
+  const INFOLIST = [
     {key: 'email', title: 'Email'},
     {key: 'phone', title: 'Phone'},
     {key: 'mobilePhone', title: 'Mobile Phone'},
@@ -24,27 +24,27 @@ https://github.com/kintone/SAMPLE-Profile-tooltip-Plug-in/blob/master/LICENSE
   ];
 
   kintone.events.on('app.record.detail.show', function(event) {
-    var record = event.record;
-    var userFieldVal = record[CONFIG_NAME].value;
+    const record = event.record;
+    const userFieldVal = record[CONFIG_NAME].value;
     if (userFieldVal.length === 0) {
       return event;
     }
 
     // Get the element of the specified User Selection field
-    var targetField = kintone.app.record.getFieldElement(CONFIG_NAME);
-    var targetLink = targetField.querySelectorAll('a');
+    const targetField = kintone.app.record.getFieldElement(CONFIG_NAME);
+    const targetLink = targetField.querySelectorAll('a');
 
     // Get the code (login name) from the user data
-    var fieldValCodeList = userFieldVal.map(function(value) {
+    const fieldValCodeList = userFieldVal.map(function(value) {
       return value.code;
     });
 
-    var body = {'codes': fieldValCodeList};
+    const body = {'codes': fieldValCodeList};
     kintone.api(kintone.api.url('/v1/users', true), 'GET', body, function(resp) {
-      var respUserData = resp.users;
+      const respUserData = resp.users;
 
       function createTableTag(userData) {
-        var table = '<table class="Tooltip-table">';
+        let table = '<table class="Tooltip-table">';
         INFOLIST.forEach(function(userInfoType) {
           table += '<tr>'
                     + '  <td>' + userInfoType.title + '</td>'
@@ -61,7 +61,7 @@ https://github.com/kintone/SAMPLE-Profile-tooltip-Plug-in/blob/master/LICENSE
       });
 
       // Create the HTML to display in the tooltip
-      var htmlContainer = respUserData.map(function(value, index) {
+      const htmlContainer = respUserData.map(function(value, index) {
         // Add an identifier to each node
         targetLink[index].setAttribute('data-template', index);
         return createTableTag(value);
