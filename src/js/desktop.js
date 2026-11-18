@@ -32,7 +32,21 @@ https://github.com/kintone/SAMPLE-Profile-tooltip-Plug-in/blob/master/LICENSE
 
     // Get the element of the specified User Selection field
     const targetField = kintone.app.record.getFieldElement(CONFIG_NAME);
-    const targetLink = targetField.querySelectorAll('a');
+    if (!targetField) {
+      return event;
+    }
+
+    // Workaround: the inner markup of the User Selection field has changed over time,
+    // so avoid relying on class names or specific tags such as <a>.
+    // Each selected user is rendered as a list item, so target the <li> elements.
+    // Fall back to <a> elements for older UIs that do not render a list.
+    let targetUsers = targetField.querySelectorAll('li');
+    if (targetUsers.length === 0) {
+      targetUsers = targetField.querySelectorAll('a');
+    }
+    if (targetUsers.length === 0) {
+      return event;
+    }
 
     // Get the code (login name) from the user data
     const fieldValCodeList = userFieldVal.map(function(value) {
@@ -55,19 +69,29 @@ https://github.com/kintone/SAMPLE-Profile-tooltip-Plug-in/blob/master/LICENSE
         return table;
       }
 
-      // Sort the retrieved user data in order of how they are listed in the User Selection field
-      respUserData.sort(function(x, y) {
-        return fieldValCodeList.indexOf(x.code) - fieldValCodeList.indexOf(y.code);
-      });
-
-      // Create the HTML to display in the tooltip
-      const htmlContainer = respUserData.map(function(value, index) {
+      // Create the HTML to display in the tooltip for each element.
+      // Match users by code in the order they are listed in the User Selection field,
+      // so a user missing from the API response (e.g. a deleted user) doesn't shift the others.
+      const htmlContainer = [];
+      const tooltipTargets = [];
+      targetUsers.forEach(function(element, index) {
+        const userData = respUserData.find(function(user) {
+          return user.code === fieldValCodeList[index];
+        });
+        if (!userData) {
+          return;
+        }
         // Add an identifier to each node
-        targetLink[index].setAttribute('data-template', index);
-        return createTableTag(value);
+        element.setAttribute('data-template', htmlContainer.length);
+        htmlContainer.push(createTableTag(userData));
+        tooltipTargets.push(element);
       });
 
-      tippy(targetLink, {
+      if (tooltipTargets.length === 0) {
+        return;
+      }
+
+      tippy(tooltipTargets, {
         arrow: true,
         arrowType: 'round',
         animation: 'scale',
