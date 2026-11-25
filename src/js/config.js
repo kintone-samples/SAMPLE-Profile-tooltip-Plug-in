@@ -7,10 +7,10 @@ jQuery.noConflict();
 (function($, PLUGIN_ID) {
   'use strict';
   // Get configuration settings
-  var CONF = kintone.plugin.app.getConfig(PLUGIN_ID);
-  var $form = $('.js-submit-settings');
-  var $cancelButton = $('.js-cancel-button');
-  var $name = $('select[name="js-select-name-field"]');
+  const CONF = kintone.plugin.app.getConfig(PLUGIN_ID);
+  const $form = $('.js-submit-settings');
+  const $cancelButton = $('.js-cancel-button');
+  const $name = $('select[name="js-select-name-field"]');
 
   function escapeHtml(htmlstr) {
     return htmlstr.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -19,18 +19,24 @@ jQuery.noConflict();
 
   function setDropDown() {
     // Retrieve field information, then set drop-down
-    KintoneConfigHelper.getFields('USER_SELECT').then(function(resp) {
-
-      resp.forEach(function(field) {
-        var $option = $('<option>');
+    return kintone.app.getFormFields().then((resp) => {
+      for (const key in resp) {
+        if (!resp.hasOwnProperty(key)) {
+          continue;
+        }
+        const field = resp[key];
+        if (field.type !== 'USER_SELECT') {
+          continue;
+        }
+        const $option = $('<option>');
         $option.attr('value', field.code);
         $option.text(escapeHtml(field.label));
         $name.append($option.clone());
-      });
+      }
       // Set default values
       $name.val(CONF.name);
-    }).catch(function(resp) {
-      alert('Failed to retrieve field(s) information');
+    }).catch((err) => {
+      return alert('Failed to retrieve field(s) information');
     });
   }
 
@@ -40,8 +46,8 @@ jQuery.noConflict();
   // Set input values when 'Save' button is clicked
   $form.on('submit', function(e) {
     e.preventDefault();
-    var config = {};
-    var name = $name.val();
+    const config = {};
+    const name = $name.val();
 
     config.name = name;
 
