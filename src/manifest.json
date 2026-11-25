@@ -4,10 +4,13 @@
   "type": "APP",
   "desktop": {
     "js": [
-      "https://unpkg.com/tippy.js@3/dist/tippy.all.min.js",
+      "https://unpkg.com/@popperjs/core@2.11.8/dist/umd/popper.min.js",
+      "https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js",
       "js/desktop.js"
     ],
     "css": [
+      "https://unpkg.com/tippy.js@6.3.7/dist/svg-arrow.css",
+      "https://unpkg.com/tippy.js@6.3.7/animations/scale.css",
       "css/desktop.css"
     ]
   },

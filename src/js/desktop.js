@@ -57,23 +57,27 @@ https://github.com/kintone/SAMPLE-Profile-tooltip-Plug-in/blob/master/LICENSE
     kintone.api(kintone.api.url('/v1/users', true), 'GET', body, function(resp) {
       const respUserData = resp.users;
 
-      function createTableTag(userData) {
-        let table = '<table class="Tooltip-table">';
+      // Build the tooltip content as DOM elements (not an HTML string),
+      // so user data is inserted as text and never interpreted as HTML.
+      function createTable(userData) {
+        const table = document.createElement('table');
+        table.className = 'Tooltip-table';
         INFOLIST.forEach(function(userInfoType) {
-          table += '<tr>'
-                    + '  <td>' + userInfoType.title + '</td>'
-                    + '  <td>: ' + userData[userInfoType.key] + '</td>'
-                    + '</tr>';
+          const tr = document.createElement('tr');
+          const titleCell = document.createElement('td');
+          const valueCell = document.createElement('td');
+          titleCell.textContent = userInfoType.title;
+          valueCell.textContent = ': ' + userData[userInfoType.key];
+          tr.appendChild(titleCell);
+          tr.appendChild(valueCell);
+          table.appendChild(tr);
         });
-        table += '</table>';
         return table;
       }
 
-      // Create the HTML to display in the tooltip for each element.
+      // Attach a tooltip to each user element.
       // Match users by code in the order they are listed in the User Selection field,
       // so a user missing from the API response (e.g. a deleted user) doesn't shift the others.
-      const htmlContainer = [];
-      const tooltipTargets = [];
       targetUsers.forEach(function(element, index) {
         const userData = respUserData.find(function(user) {
           return user.code === fieldValCodeList[index];
@@ -81,25 +85,17 @@ https://github.com/kintone/SAMPLE-Profile-tooltip-Plug-in/blob/master/LICENSE
         if (!userData) {
           return;
         }
-        // Add an identifier to each node
-        element.setAttribute('data-template', htmlContainer.length);
-        htmlContainer.push(createTableTag(userData));
-        tooltipTargets.push(element);
-      });
-
-      if (tooltipTargets.length === 0) {
-        return;
-      }
-
-      tippy(tooltipTargets, {
-        arrow: true,
-        arrowType: 'round',
-        animation: 'scale',
-        interactive: true,
-        placement: 'right',
-        content: function(reference) {
-          return htmlContainer[reference.getAttribute('data-template')];
-        }
+        tippy(element, {
+          content: createTable(userData),
+          arrow: tippy.roundArrow,
+          animation: 'scale',
+          interactive: true,
+          placement: 'right',
+          // Append to <body> so the tooltip isn't clipped by the field's container
+          appendTo: function() {
+            return document.body;
+          }
+        });
       });
     }, function(error) {
       // error
